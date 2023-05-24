@@ -1,13 +1,17 @@
+import { useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import { stripe } from '@/lib/stipe';
 import Image from 'next/image';
 import Stripe from 'stripe';
+import axios from 'axios';
 
 import { priceFormatter } from '@/utils/formatter';
 
+import { Spinner } from '@/styles/components/loadingSpinner';
 import {
   ImageContainer,
+  LoadingContainer,
   ProductContainer,
   ProductDetails,
 } from '@/styles/pages/product';
@@ -19,14 +23,42 @@ interface ProductProps {
     imageUrl: string;
     price: string;
     description: string;
+    defaultPriceId: string;
   };
 }
 
 export default function Product({ product }: ProductProps) {
   const { isFallback } = useRouter();
 
+  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] =
+    useState(false);
+
   if (isFallback) {
-    return <p>Carregando...</p>;
+    return (
+      <LoadingContainer>
+        <Spinner color="green" size="2" thickness="4" />
+      </LoadingContainer>
+    );
+  }
+
+  async function handleBuyProduct() {
+    setIsCreatingCheckoutSession(true);
+
+    try {
+      const response = await axios.post('/api/checkout', {
+        priceId: product.defaultPriceId,
+      });
+
+      const { checkoutUrl } = response.data;
+
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      console.error(error);
+
+      setIsCreatingCheckoutSession(false);
+
+      alert('Erro ao realizar compra, falha ao redirecionar ao checkout.');
+    }
   }
 
   return (
@@ -46,7 +78,9 @@ export default function Product({ product }: ProductProps) {
 
         <p>{product.description}</p>
 
-        <button>Comprar agora</button>
+        <button disabled={isCreatingCheckoutSession} onClick={handleBuyProduct}>
+          Comprar agora
+        </button>
       </ProductDetails>
     </ProductContainer>
   );
@@ -82,6 +116,7 @@ export const getStaticProps: GetStaticProps<any, { id: string }> = async ({
         imageUrl: product.images[0],
         price: priceFormatter.format((price.unit_amount ?? 0) / 100),
         description: product.description,
+        defaultPriceId: price.id,
       },
     },
     revalidate,

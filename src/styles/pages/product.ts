@@ -11,6 +11,15 @@ export const ProductContainer = styled('main', {
   paddingBottom: '4rem',
 });
 
+export const LoadingContainer = styled('div', {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '100%',
+  height: '100%',
+  margin: 'auto',
+});
+
 export const ImageContainer = styled('div', {
   width: '100%',
   maxWidth: 576,
@@ -62,7 +71,12 @@ export const ProductDetails = styled('div', {
     fontWeight: 'bold',
     fontSize: '$md',
 
-    '&:hover': {
+    '&:disabled': {
+      opacity: 0.6,
+      cursor: 'not-allowed',
+    },
+
+    '&:not(:disabled):hover': {
       backgroundColor: '$green300',
     },
   },
