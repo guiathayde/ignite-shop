@@ -21,7 +21,7 @@ export default async function handler(
       },
     ],
     cancel_url: `${process.env.NEXT_URL}/`,
-    success_url: `${process.env.NEXT_URL}/success`,
+    success_url: `${process.env.NEXT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
   });
 
   return res.status(201).json({ checkoutUrl: checkoutSession.url });
