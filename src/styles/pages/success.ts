@@ -24,14 +24,22 @@ export const SuccessContainer = styled('main', {
   },
 });
 
+export const ImagesContainer = styled('div', {
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
 export const ImageContainer = styled('div', {
-  width: '100%',
-  maxWidth: 130,
+  width: 145,
   height: 145,
   background: 'linear-gradient(180deg, #1ea483 0%, #7465d4 100%)',
-  borderRadius: 8,
+  borderRadius: '50%',
+  boxShadow: '0px 0px 60px rgba(0, 0, 0, 0.8)',
   padding: '0.25rem',
   marginTop: '4rem',
+  marginLeft: -(145 / 2.5),
 
   display: 'flex',
   alignItems: 'center',
@@ -39,6 +47,7 @@ export const ImageContainer = styled('div', {
 
   img: {
     objectFit: 'cover',
+    borderRadius: '50%',
   },
 });
 

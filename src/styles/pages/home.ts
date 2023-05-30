@@ -15,7 +15,7 @@ export const Product = styled(Link, {
   cursor: 'pointer',
   position: 'relative',
   overflow: 'hidden',
-  minWidth: 540,
+  minWidth: 696,
 
   display: 'flex',
   alignItems: 'center',
@@ -38,11 +38,19 @@ export const Product = styled(Link, {
     alignItems: 'center',
     justifyContent: 'space-between',
 
+    width: '98.5%',
+
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
 
     transform: 'translateY(110%)',
     opacity: 0,
     transition: 'all 0.2s ease-in-out',
+
+    '& > div': {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.5rem',
+    },
 
     strong: {
       fontSize: '$lg',

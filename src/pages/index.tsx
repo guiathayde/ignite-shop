@@ -1,35 +1,57 @@
+import { useCallback, useState } from 'react';
 import { GetStaticProps } from 'next';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Stripe from 'stripe';
 import { useKeenSlider } from 'keen-slider/react';
 import Image from 'next/image';
 
+import { Product as ProductProps } from '@/hooks/shoppingBag';
+
 import { stripe } from '@/lib/stipe';
+import { wheelControls } from '@/lib/keen-slider/wheelControls';
+import { Arrow } from '@/lib/keen-slider/Arrow';
 
 import { priceFormatter } from '@/utils/formatter';
 
-import { HomeContainer, Product } from '@/styles/pages/home';
+import { Cart } from '@/components/cart';
 
+import { HomeContainer, Product } from '@/styles/pages/home';
 import 'keen-slider/keen-slider.min.css';
 
-interface Product {
-  id: string;
-  name: string;
-  imageUrl: string;
-  price: string;
-}
-
 interface HomeProps {
-  products: Product[];
+  products: ProductProps[];
 }
 
 export default function Home({ products }: HomeProps) {
-  const [sliderRef] = useKeenSlider({
-    slides: {
-      perView: 3,
-      spacing: 48,
+  const router = useRouter();
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isSliderLoaded, setIsSliderLoaded] = useState(false);
+
+  const [sliderRef, sliderInstanceRef] = useKeenSlider(
+    {
+      mode: 'free',
+      slides: {
+        perView: 'auto',
+        spacing: 48,
+      },
+      slideChanged(slider) {
+        setCurrentSlide(slider.track.details.rel);
+      },
+      created() {
+        setIsSliderLoaded(true);
+      },
     },
-  });
+    [wheelControls]
+  );
+
+  const handleClickCart = useCallback(
+    (productId: string) => {
+      router.push(`/product/${productId}`);
+    },
+    [router]
+  );
 
   return (
     <>
@@ -48,11 +70,39 @@ export default function Home({ products }: HomeProps) {
             <Image src={product.imageUrl} width={520} height={480} alt="" />
 
             <footer>
-              <strong>{product.name}</strong>
-              <span>{product.price}</span>
+              <div>
+                <strong>{product.name}</strong>
+                <span>{product.price}</span>
+              </div>
+              <Cart
+                variant="green"
+                onClick={() => handleClickCart(product.id)}
+              />
             </footer>
           </Product>
         ))}
+
+        {isSliderLoaded && sliderInstanceRef.current && (
+          <>
+            <Arrow
+              left
+              onClick={(e) =>
+                e.stopPropagation() || sliderInstanceRef.current?.prev()
+              }
+              disabled={currentSlide === 0}
+            />
+
+            <Arrow
+              onClick={(e: any) =>
+                e.stopPropagation() || sliderInstanceRef.current?.next()
+              }
+              disabled={
+                currentSlide ===
+                sliderInstanceRef.current.track.details.slides.length - 1
+              }
+            />
+          </>
+        )}
       </HomeContainer>
     </>
   );

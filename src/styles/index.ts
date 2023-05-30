@@ -14,6 +14,8 @@ export const {
     colors: {
       white: '#fff',
 
+      background: '#1E1E1E',
+
       gray900: '#121214',
       gray800: '#202024',
       gray300: '#c4c4cc',

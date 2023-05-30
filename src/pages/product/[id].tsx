@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { stripe } from '@/lib/stipe';
 import Image from 'next/image';
 import Stripe from 'stripe';
-import axios from 'axios';
+
+import { Product, useShoppingBag } from '@/hooks/shoppingBag';
 
 import { priceFormatter } from '@/utils/formatter';
 
-import { Spinner } from '@/styles/components/loadingSpinner';
+import { Spinner } from '@/styles/components/spinner';
+import { Button } from '@/styles/components/button';
+
 import {
   ImageContainer,
   LoadingContainer,
@@ -18,21 +21,16 @@ import {
 } from '@/styles/pages/product';
 
 interface ProductProps {
-  product: {
-    id: string;
-    name: string;
-    imageUrl: string;
-    price: string;
-    description: string;
-    defaultPriceId: string;
-  };
+  product: Product;
 }
 
 export default function Product({ product }: ProductProps) {
   const { isFallback } = useRouter();
+  const { addProduct } = useShoppingBag();
 
-  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] =
-    useState(false);
+  const handleAddProduct = useCallback(() => {
+    addProduct(product);
+  }, [addProduct, product]);
 
   if (isFallback) {
     return (
@@ -40,26 +38,6 @@ export default function Product({ product }: ProductProps) {
         <Spinner color="green" size="2" thickness="4" />
       </LoadingContainer>
     );
-  }
-
-  async function handleBuyProduct() {
-    setIsCreatingCheckoutSession(true);
-
-    try {
-      const response = await axios.post('/api/checkout', {
-        priceId: product.defaultPriceId,
-      });
-
-      const { checkoutUrl } = response.data;
-
-      window.location.href = checkoutUrl;
-    } catch (error) {
-      console.error(error);
-
-      setIsCreatingCheckoutSession(false);
-
-      alert('Erro ao realizar compra, falha ao redirecionar ao checkout.');
-    }
   }
 
   return (
@@ -84,12 +62,7 @@ export default function Product({ product }: ProductProps) {
 
           <p>{product.description}</p>
 
-          <button
-            disabled={isCreatingCheckoutSession}
-            onClick={handleBuyProduct}
-          >
-            Comprar agora
-          </button>
+          <Button onClick={handleAddProduct}>Colocar na sacola</Button>
         </ProductDetails>
       </ProductContainer>
     </>
